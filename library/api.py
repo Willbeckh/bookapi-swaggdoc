@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api, Resource, abort, reqparse, fields
+from flask_restful import Api, Resource, abort, reqparse, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -10,64 +10,76 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
 
-# class BookModel(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(200))
-#     author = db.Column(db.String(200))
+class BookModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200))
+    author = db.Column(db.String(200))
 
 
 # db.create_all() # command to create db
-
-# database object
-books = {
-    1: {'title': 'code book', 'author': 'Billy_dev'},
-    2: {'title': 'no fuckery', 'author': 'Manson'}
-}
-
 
 book_post_args = reqparse.RequestParser()
 book_post_args.add_argument("title", type=str, help="Title is required!", required=True)
 book_post_args.add_argument("author", type=str, help="author is required!", required=True)
 
 book_update_args = reqparse.RequestParser()
-book_update_args.add_argument("title", required=True)
-book_update_args.add_argument("author", required=True)
+book_update_args.add_argument("title", type=str)
+book_update_args.add_argument("author", type=str)
+
+resource_fields = {
+    "id": fields.Integer,
+    "title": fields.String,
+    "author": fields.String
+}
 
 class BookList(Resource):
     def get(self):
         '''returns all books in the database'''
-        return books
+        books = BookModel.query.all()
+        allBooks = {}
+        for book in books:
+            allBooks[book.id] = {"title": book.title, "author": book.author}
+        return allBooks
 
 class BookId(Resource):
+    @marshal_with(resource_fields)
     def get(self, book_id):
         '''returns book by id '''
-        return books[book_id]  
+        book = BookModel.query.filter_by(id=book_id).first()
+        if not book:
+            abort(404, message="No book found with that id!")
+        return book
 
+    @marshal_with(resource_fields)
     def post(self, book_id):
         args = book_post_args.parse_args()
-        if book_id in books:
+        book = BookModel.query.filter_by(id=book_id).first()
+        if book:
             abort(409)
+        
+        newBook = BookModel(id=book_id, title=args["title"], author=args["author"])
+        db.session.add(newBook)
+        db.session.commit()
+        return newBook, 201
 
-        books[book_id] = {
-            "title": args["title"],
-            "author": args["author"]
-        }
-        return books[book_id]
-
+    @marshal_with(resource_fields)
     def put(self, book_id):
         '''updates a book using its id'''
         args = book_update_args.parse_args()
-        if book_id not in books:
-            abort(404)
+        book = BookModel.query.filter_by(id=book_id).first()
+        if not book:
+            abort(404, message="No book found.")
         if args['title']:
-            books[book_id]["title"] = args["title"]
+            book.title = args["title"]
         if args["author"]:
-            books[book_id]["author"] = args["author"]
-        return books[book_id]
+            book.author = args["author"]
+        db.session.commit()
+        return book
 
     def delete(self, book_id):
-        del books[book_id]
-        return books
+        book = BookModel.query.filter_by(id=book_id).first()
+        db.session.delete(book)
+        return "Book deleted", 204
 
 api.add_resource(BookList, "/bookapi/books") # gets all the books in the db.
 api.add_resource(BookId, "/bookapi/books/<int:book_id>") # use this to get/post a book

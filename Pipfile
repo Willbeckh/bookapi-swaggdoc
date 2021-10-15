@@ -9,6 +9,7 @@ flask-restful = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
 flask-cors = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 

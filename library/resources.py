@@ -1,124 +1,104 @@
-from flask import request, jsonify
-from flask.helpers import make_response
-from flask_restful import Resource, abort, reqparse, fields, marshal_with
+from flask import request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-import uuid
 import jwt
+import uuid
+from datetime import datetime, timedelta
 from library import db, app
-from library.models import BookModel, Users, token_required
+from library.models import BookModel, User, token_required
 
-
-# data parsing
-book_post_args = reqparse.RequestParser()
-book_post_args.add_argument("title", type=str, help="Title is required!", required=True)
-book_post_args.add_argument("author", type=str, help="author is required!", required=True)
-
-book_update_args = reqparse.RequestParser()
-book_update_args.add_argument("title", type=str)
-book_update_args.add_argument("author", type=str)
-
-# data for user
-user_post_data = reqparse.RequestParser()
-user_post_data.add_argument("username", type=str, help="Username rqeuired!", required=True)
-user_post_data.add_argument("password", type=str, help="Password required!", required=True)
-
-# serializing db data to py objs(dict)
-resource_fields = {
-    "id": fields.Integer,
-    "title": fields.String,
-    "author": fields.String
-}
-
-# user data format
-user_fields = {
-    "username": fields.String,
-    "password": fields.String
-}
 
 # register route
-class Signup(Resource):
-    def post(self):
-        data = user_post_data.parse_args()
-        hashed_password = generate_password_hash(data['password'], method='sha256')
+@app.route('/signup', methods=['POST'])
+def signup_user(): 
+    data = request.get_json() 
+    hashed_password = generate_password_hash(data['password'], method='sha256')
+    
+    user = User.query.filter_by(username=data['username']).first()
+    if not user:
+        new_user = User(public_id=str(uuid.uuid4()), username=data['username'], password=hashed_password, admin=False)
+        db.session.add(new_user) 
+        db.session.commit() 
 
-        user = Users.query.filter_by(username=data['username']).first()
-        if not user:
-            new_user = Users(public_id=str(uuid.uuid4()), username=data['username'], password=hashed_password, admin=False)
-            db.session.add(new_user)
-            db.session.commit()
-        return f"User:<{new_user.username}> registered successfully!", 201
+        return jsonify({'message': 'registered successfully'}), 201
+    else:
+        return make_response(jsonify({"message": "User already exists!"}), 409)
 
 # user login route
-class Login(Resource):
-    def post(self):
-        auth_data = request.get_json()
-        if not auth_data or not auth_data.get('username') or not auth_data.get('password'):
-            abort(401, message="Could not verify user data!")
-        user = Users.query.filter_by(username=auth_data.get('username')).first()
-        
-        if check_password_hash(user.password, auth_data.get('password')):
-            token = jwt.encode({'public_id': user.public_id, 'exp': datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], 'HS256')
-            return jsonify({'token': token}), 200
-        abort(401, message="could not verify login")
+@app.route('/login', methods=['POST'])
+def login():
+    auth = request.get_json()
+    if not auth or not auth.get('username') or not auth.get('password'):
+        return make_response('Could not verify!', 401, {'WWW-Authenticate': 'Basic-realm= "Login required!"'})
+
+    user = User.query.filter_by(username=auth['username']).first()
+    if not user:
+        return make_response('Could not verify user!', 401, {'WWW-Authenticate': 'Basic-realm= "No user found!"'})
+
+    if check_password_hash(user.password, auth.get('password')):
+        token = jwt.encode({'public_id': user.public_id}, app.config['SECRET_KEY'], 'HS256')
+        return make_response(jsonify({'token': token}), 201)
+
+    return make_response('Could not verify password!', 403, {'WWW-Authenticate': 'Basic-realm= "Wrong Password!"'})
 
 
-# first route resource
-class BookList(Resource):
-    # @token_required
-    def get(self, current_user):
-        '''returns all books in the database'''
-        books = BookModel.query.filter_by(user_id=current_user.id).all()
-        allBooks = {}
-        for book in books:
-            allBooks[book.id] = {"title": book.title, "author": book.author}
-            abort(404, message="no books available!")
-        return allBooks
+#  add a book
+@app.route('/bookapi/addbook', methods=['POST'])
+@token_required
+def create_book(current_user):
+    '''adds a new book to collection!'''
+    data = request.get_json()
+    book = BookModel.query.filter_by(title=data['title']).first()
+    if book:
+        return make_response(jsonify({"message": "Book with same title already exists!"}), 409)
+    else:
+        new_books = BookModel(title=data['title'], author=data['author'], owner=current_user) 
+        db.session.add(new_books)  
+        db.session.commit() 
+        return jsonify({'message' : 'new book created'})
+
+# get all books
+@app.route('/bookapi/books', methods=['GET'])
+@token_required
+def get_books(current_user):
+ 
+   books = BookModel.query.all()
+   output = []
+   for book in books:
+       book_data = {}
+       book_data['id'] = book.id
+       book_data['title'] = book.title
+       book_data['author'] = book.author
+    #    book_data['owner'] = book.user_id
+       output.append(book_data)
+ 
+   return jsonify({'Books' : output})
 
 
-# 2nd route resource
-class BookId(Resource):
-    # @token_required
-    @marshal_with(resource_fields)
-    def get(self, book_id):
-        '''returns book by id '''
-        book = BookModel.query.filter_by(id=book_id).first()
-        if not book:
-            abort(404, message="No book found with that id!")
-        return book
+# deleting a book
+@app.route('/bookapi/books/<book_id>', methods=['DELETE'])
+@token_required
+def delete_book(book_id): 
+ 
+   book = BookModel.query.filter_by(id=book_id).first()  
+   if not book:  
+       return jsonify({'message': 'book does not exist'})  
+ 
+   db.session.delete(book) 
+   db.session.commit()  
+   return jsonify({'message': 'Book deleted'})
 
-    @token_required
-    @marshal_with(resource_fields)
-    def post(self, book_id):
-        '''adds book by ID'''
-        args = book_post_args.parse_args()
-        book = BookModel.query.filter_by(id=book_id).first()
-        if book:
-            abort(409)
-        
-        newBook = BookModel(id=book_id, title=args["title"], author=args["author"])
-        db.session.add(newBook)
-        db.session.commit()
-        return newBook, 201
 
-    @token_required
-    @marshal_with(resource_fields)
-    def put(self, book_id):
-        '''updates a book using its id'''
-        args = book_update_args.parse_args()
-        book = BookModel.query.filter_by(id=book_id).first()
-        if not book:
-            abort(404, message="No book found.")
-        if args['title']:
-            book.title = args["title"]
-        if args["author"]:
-            book.author = args["author"]
-        db.session.commit()
-        return book
+# # update a book
+# @app.route("/bookapi/book/<book_id>", methods=['PUT'])
+# def update_book(book_id):
+#     data = request.get_json()
 
-    @token_required
-    def delete(self, book_id):
-        '''deletes book from db with the provided id'''
-        book = BookModel.query.filter_by(id=book_id).first()
-        db.session.delete(book)
-        return "Book deleted", 204
+#     book = BookModel.query.filter_by(id=book_id).first()
+#     if not book:
+#         return make_response(jsonify({"message": "No book found with that id!"}), 404)
+#     if book.title:
+#         data['title'] = book.title
+#     # if data['author']:
+#     #     book.author = data['author']
+#     db.session.commit()
+#     return jsonify({"Book": book})

@@ -14,9 +14,10 @@ requests = "*"
 pyjwt = "~=2.1.0"
 datetime = "*"
 uuid = "*"
-flask-migrate = "*"
+Flask-Migrate = "*"
+pytest = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

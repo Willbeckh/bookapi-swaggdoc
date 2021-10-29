@@ -1,36 +1,19 @@
 version: 2.1
-
-
 orbs:
   python: circleci/python@1.2
 
-jobs:
-  build:
-    working_directory: ~/circleci-python
-    docker:
-      - image: cimg/python:3.8
-    steps:
-      - checkout # checkout source code to working directory
-      - run: 
-        command: 
-          pip install pipenv
-          pipenv install # finds and install dependecies
-  test:
-    working_directory: ~/circleci-python
-    docker:
-      - image: cimg/python3.8
-    steps:
-      name: Run tests
-      - checkout
-      - run
-        command: |
-          pipenv run pytest test_auth.py
-
-
 workflows:
-  build-and-test:
+  build-app-with-test:
     jobs:
-      - build
-      - test:
-        requires:
-          -build:
+      - build-and-test
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pipenv
+      - run:
+          name: Run tests
+          command: pipenv run pytest test_auth.py

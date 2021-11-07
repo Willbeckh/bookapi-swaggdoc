@@ -1,0 +1,89 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Library_manager
+  description: library book management API
+  license:
+    name: MIT
+    url: "https://opensource.org/licenses/MIT"
+    
+servers: 
+  - url: https://localhost:5000/
+    description: base server
+    
+paths:
+  /signup:
+    post:
+      summary: user signup 
+      description: new users need to provide a unique username & password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+
+      responses:
+        200:
+          description: User successfully registered.
+        403:
+          description: Action forbiden
+
+  /login:
+    post:
+      summary: user login
+      description: Registered users can login and get the authorization token
+      requestBody:
+        description: allows users to login
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'  
+
+      responses:
+        201:
+          description: successfully logged in!
+
+  /bookapi/addbook:
+    post:
+      summary: add a book
+      description: allows uses to create new books
+      requestBody: 
+        description: users can create new books
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+              
+      responses:      
+        201:
+          description: book successfully created
+        409:
+          description: bad method- book already exists
+
+components:
+  schemas:
+    User:
+      description: model consisting user info
+      type: object
+      properties:
+        username:
+          type: string
+          example: will
+        
+        password:
+          type: string
+          example: p1234
+    Book:
+      description: model containing book info
+      type: object
+      properties:
+        title:
+          type: string
+          example: testing python
+        author:
+          type: string
+          example: david
+

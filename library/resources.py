@@ -3,12 +3,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import uuid
 from datetime import datetime, timedelta
-from library import db, app
+from library.main import db, app
 from library.models import BookModel, User, token_required
 
 
 # register route
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST']) 
 def signup_user(): 
     data = request.get_json() 
     hashed_password = generate_password_hash(data['password'], method='sha256')
@@ -54,7 +54,7 @@ def create_book(current_user):
         new_books = BookModel(title=data['title'], author=data['author'], owner=current_user) 
         db.session.add(new_books)  
         db.session.commit() 
-        return jsonify({'message' : 'new book created'})
+        return jsonify({'message' : 'new book created'}), 201
 
 # get all books
 @app.route('/bookapi/books', methods=['GET'])

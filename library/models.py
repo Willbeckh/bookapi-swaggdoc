@@ -1,8 +1,7 @@
 from flask.helpers import make_response
 from sqlalchemy.orm import backref
-from library import db
 from flask import request, jsonify
-from library import app
+from library.main import app, db
 from functools import wraps
 import jwt
 from flask_restful import abort

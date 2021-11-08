@@ -8,11 +8,12 @@ from config import app_config
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-config_name = os.getenv('FLASK_ENV', 'default')
+config_name = os.getenv('FLASK_ENV', 'postgres')
 
 app = Flask(__name__)
 # app.config.from_object(Config)
 app.config.from_object(app_config[config_name])
+
 
 # swagger ui configs
 SWAGGER_URL = '/api-docs'
@@ -31,6 +32,7 @@ app.register_blueprint(SWAGGER_BLUEPRINT, url_prefix=SWAGGER_URL)
 # db object
 db = SQLAlchemy(app)
 
+# create db tables
 @app.before_first_request
 def create_tables():
     db.create_all()

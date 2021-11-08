@@ -7,9 +7,14 @@ info:
     name: MIT
     url: "https://opensource.org/licenses/MIT"
     
-servers: 
-  - url: https://localhost:5000/
-    description: base server
+# servers: 
+#   - url: {protocol}://localhost:{port}
+#     description: base server
+#     variables:
+#       port:
+#         enum:
+#           - '5000'
+
     
 paths:
   /signup:

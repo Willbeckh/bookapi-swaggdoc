@@ -10,11 +10,16 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'd9874b1c9d7d19b255c72a8096ecbd331f6885e9'
 
+class PostgresConfig(Config):
+    # ..config for postgresql
+    SQLALCHEMY_DATABASE_URI = os.environ.get('POSTGRES_URI') 
+
 class TestingConfig(Config):
     # ...
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'test_api.db')
     TESTING = True
+    
 class StagingConfig(Config):
     # ...
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
@@ -24,5 +29,6 @@ class StagingConfig(Config):
 app_config = {
     'testing': TestingConfig,
     'staging': StagingConfig,
-    'default': Config
+    'default': Config,
+    'postgres': PostgresConfig
 }

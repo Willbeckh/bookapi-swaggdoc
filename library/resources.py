@@ -15,7 +15,7 @@ def signup_user():
     
     user = User.query.filter_by(username=data['username']).first()
     if not user:
-        new_user = User(public_id=str(uuid.uuid4()), username=data['username'], password=hashed_password, admin=False)
+        new_user = User(username=data['username'], password=hashed_password, admin=False)
         db.session.add(new_user) 
         db.session.commit() 
 
@@ -35,7 +35,7 @@ def login():
         return make_response('Could not verify user!', 401, {'WWW-Authenticate': 'Basic-realm= "No user found!"'})
 
     if check_password_hash(user.password, auth.get('password')):
-        token = jwt.encode({'public_id': user.public_id}, app.config['SECRET_KEY'], 'HS256')
+        token = jwt.encode({'id': user.id, 'username': user.username}, app.config['SECRET_KEY'], 'HS256')
         return make_response(jsonify({'token': token}), 201)
 
     return make_response('Could not verify password!', 403, {'WWW-Authenticate': 'Basic-realm= "Wrong Password!"'})
@@ -68,7 +68,8 @@ def get_books(current_user):
        book_data['id'] = book.id
        book_data['title'] = book.title
        book_data['author'] = book.author
-    #    book_data['owner'] = book.user_id
+       book_data['owner'] = book.owner
+       book_data['owner'] = book.user_id
        output.append(book_data)
  
    return jsonify({'Books' : output})
@@ -79,26 +80,26 @@ def get_books(current_user):
 @token_required
 def delete_book(book_id): 
  
-   book = BookModel.query.filter_by(id=book_id).first()  
-   if not book:  
-       return jsonify({'message': 'book does not exist'})  
- 
+   book = BookModel.query.filter_by(id=book_id)
+   if not book:
+       return jsonify({'message': 'book does not exist'}), 409   
+
    db.session.delete(book) 
    db.session.commit()  
-   return jsonify({'message': 'Book deleted'})
+   return jsonify({f'message': 'Book deleted! <book: {book.title}'}), 200
 
 
-# # update a book
-# @app.route("/bookapi/book/<book_id>", methods=['PUT'])
-# def update_book(book_id):
-#     data = request.get_json()
+# update a book
+@app.route("/bookapi/book/<book_id>", methods=['PUT'])
+def update_book(book_id):
+    data = request.get_json()
 
-#     book = BookModel.query.filter_by(id=book_id).first()
-#     if not book:
-#         return make_response(jsonify({"message": "No book found with that id!"}), 404)
-#     if book.title:
-#         data['title'] = book.title
-#     # if data['author']:
-#     #     book.author = data['author']
-#     db.session.commit()
-#     return jsonify({"Book": book})
+    book = BookModel.query.filter_by(id=book_id).first()
+    if not book:
+        return make_response(jsonify({"message": "No book found with that id!"}), 404)
+    if book.title:
+        data['title'] = book.title
+    if book.author:
+        book.author = data['author']
+    db.session.commit()
+    return jsonify({"Book": book})

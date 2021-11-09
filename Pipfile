@@ -16,6 +16,8 @@ datetime = "*"
 uuid = "*"
 Flask-Migrate = "*"
 pytest = "*"
+flask-swagger-ui = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

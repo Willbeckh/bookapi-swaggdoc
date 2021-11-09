@@ -1,8 +1,7 @@
 from flask.helpers import make_response
-from sqlalchemy.orm import backref
-from library import db
+from sqlalchemy.orm import backref, relationship
 from flask import request, jsonify
-from library import app
+from library.main import app, db
 from functools import wraps
 import jwt
 from flask_restful import abort
@@ -10,6 +9,8 @@ from flask_restful import abort
 
 # users table
 class User(db.Model):
+    __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.Integer)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -22,10 +23,13 @@ class User(db.Model):
 
 # books table
 class BookModel(db.Model):
+    __tablename__ = 'books'
+    
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200))
     author = db.Column(db.String(200))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # users = relationship("User")
 
     def ___repr__(self):
         return '<Book {}>'.format(self.title)
@@ -43,7 +47,7 @@ def token_required(f):
             return make_response(jsonify({"message": "A valid token is missing!"}), 401)
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_user = User.query.filter_by(public_id=data['public_id']).first()
+            current_user = User.query.filter_by(id=data['id']).first()
         except:
             return make_response(jsonify({"message": "Invalid token!"}), 401)
 

@@ -75,6 +75,29 @@ def get_books(current_user):
    return jsonify({'Books' : output})
 
 
+# gett book with id
+@app.route('/bookapi/book/<book_id>', methods=['GET'])
+@token_required
+def get_book_by_id(book_id):
+    if request.method == 'GET':
+        book = BookModel.query.filter_by(id=book_id).first()
+
+    if not book:
+        return jsonify({'message': 'No book found with that id'}), 404
+    result = []
+    for bk in book:
+        book_info = {}
+        book_info['id'] = bk.id
+        book_info['title'] = bk.title
+        book_info['author'] = bk.author
+        book_info['title'] = bk.title
+        book_info['owner'] = bk.owner
+        book_info['owner'] = bk.user_id
+        result.append(book_info)
+
+    return jsonify({'Book': result})
+
+
 # deleting a book
 @app.route('/bookapi/books/<book_id>', methods=['DELETE'])
 @token_required

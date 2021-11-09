@@ -16,7 +16,12 @@ datetime = "*"
 uuid = "*"
 Flask-Migrate = "*"
 pytest = "*"
+<<<<<<< HEAD
 gunicorn = "*"
+=======
+flask-swagger-ui = "*"
+psycopg2-binary = "*"
+>>>>>>> develop
 
 [dev-packages]
 

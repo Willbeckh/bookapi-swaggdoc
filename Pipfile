@@ -16,6 +16,7 @@ datetime = "*"
 uuid = "*"
 Flask-Migrate = "*"
 pytest = "*"
+gunicorn = "*"
 
 [dev-packages]
 

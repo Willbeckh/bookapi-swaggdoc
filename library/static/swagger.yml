@@ -7,18 +7,26 @@ info:
     name: MIT
     url: "https://opensource.org/licenses/MIT"
     
-# servers: 
-#   - url: {protocol}://localhost:{port}
-#     description: base server
-#     variables:
-#       port:
-#         enum:
-#           - '5000'
+servers: 
+  - url: '{protocol}://127.0.0.1:{port}'
+    description: base server
+    variables:
+      protocol:
+        enum:
+          - http
+          - https 
+        default: http
+      port:
+        enum:
+          - '5000'
+        default: '5000'
 
     
 paths:
   /signup:
     post:
+      tags:
+        - "User"
       summary: user signup 
       description: new users need to provide a unique username & password
       requestBody:
@@ -36,8 +44,10 @@ paths:
 
   /login:
     post:
+      tags:
+        - "User"
       summary: user login
-      description: Registered users can login and get the authorization token
+      description: Registered users can login and returns the API authorization token
       requestBody:
         description: allows users to login
         required: true
@@ -49,9 +59,13 @@ paths:
       responses:
         201:
           description: successfully logged in!
+        401:
+          description: could not verify user details.
 
   /bookapi/addbook:
     post:
+      tags:
+        - "Books"
       summary: add a book
       description: allows uses to create new books
       requestBody: 
@@ -61,14 +75,74 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Book'
+      # apiAuth application
+      security:
+        - ApiKeyAuth: []
               
       responses:      
         201:
           description: book successfully created
         409:
           description: bad method- book already exists
+        401:
+          description: authorization error
 
+  /bookapi/books:
+    get:
+      tags:
+        - "Books"
+      summary: get all books
+      description: retrieves all the book records
+
+      security:
+        - ApiKeyAuth: []
+      
+      
+      responses:
+        200:
+          description: all books retturned
+        500:
+          description: InternalServerError
+
+  /bookapi/book/{id}:
+    get:
+      tags:
+        - "Books"
+      summary: get book byid
+      description: retrieves a single book entry using id
+      parameters:
+        - name: id
+          in: query
+          description: id of the book
+          required: true
+          schema:
+            type: integer
+            example: 2
+
+      # apiAuth application
+      security:
+        - ApiKeyAuth: []
+
+      responses:
+        200:
+          description: Success
+        500:
+          description: oops! something is wrong with the server
+      
+
+tags:
+  - name: User
+    description: labels for users
+  - name: Books
+    description: label for books category
+        
 components:
+  securitySchemes:
+    # basic authentication(security)
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-access-token
   schemas:
     User:
       description: model consisting user info
@@ -91,4 +165,3 @@ components:
         author:
           type: string
           example: david
-

@@ -9,8 +9,17 @@ flask-restful = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
 flask-cors = "*"
+flask-jwt-extended = "*"
+requests = "*"
+pyjwt = "~=2.1.0"
+datetime = "*"
+uuid = "*"
+Flask-Migrate = "*"
+pytest = "*"
+flask-swagger-ui = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

@@ -8,6 +8,15 @@ info:
     url: "https://opensource.org/licenses/MIT"
     
 servers: 
+  - url: '{protocol}://willbeckh.pythonanywhere.com/'
+    description: default server
+    variables:
+      protocol:
+        enum: 
+          - http
+          - https
+        default: https
+
   - url: '{protocol}://127.0.0.1:{port}'
     description: base server
     variables:
@@ -21,7 +30,8 @@ servers:
           - '5000'
         default: '5000'
 
-    
+
+
 paths:
   /signup:
     post:

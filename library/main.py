@@ -8,7 +8,7 @@ from config import app_config
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-config_name = os.getenv('FLASK_ENV', 'postgres')
+config_name = os.getenv('FLASK_ENV', 'default')
 
 app = Flask(__name__)
 # app.config.from_object(Config)

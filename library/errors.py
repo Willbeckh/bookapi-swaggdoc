@@ -8,4 +8,4 @@ def not_found_err(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({"message": "oops server error"}), 500
+    return jsonify({"message": "oops! Internal server error"}), 500

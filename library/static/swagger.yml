@@ -8,7 +8,7 @@ info:
     url: "https://opensource.org/licenses/MIT"
     
 servers: 
-  - url: '{protocol}://willbeckh.pythonanywhere.com/'
+  - url: '{protocol}://waweru.pythonanywhere.com/'
     description: default server
     variables:
       protocol:

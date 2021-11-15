@@ -12,6 +12,9 @@ swagger documentation for a flask API
 5. Install with `pipenv install`
 
 ## Running
+> Deployed version: `https://waweru.pythonanywhere.com/api-docs/`
+
+### local setup
 - type: `python run.py` serving point of the API
 - app running on `http://127.0.0.1:5000/`
 - Documentation being served on `/api-docs` endpoint

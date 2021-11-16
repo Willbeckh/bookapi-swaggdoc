@@ -46,9 +46,9 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pipenv
-      - run:
-          name: Run tests
-          command: pipenv run pytest
+      # - run:
+      #     name: Run tests
+      #     command: pipenv run pytest
   deploy:
     docker:
       - image: cimg/python:3.9

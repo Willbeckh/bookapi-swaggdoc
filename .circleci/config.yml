@@ -6,11 +6,12 @@ jobs:
       - image: cimg/python:3.9 
   deploy:
     steps:
-      - checkout
       - add_ssh_keys:
           fingerprints:
             - SHA256:d+6W3EBUQe9cC7cLwctwyIxwMu5O5v989ASL+k1FBKk
       - checkout
+      - python/install-packages:
+          pkg-manager: pipenv
       - run:
           name: Deploy Over SSH
           command: |

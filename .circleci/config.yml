@@ -2,11 +2,14 @@ version: 2
 
 jobs:
   build:
-    # ...
+    docker:
+      - image: cimg/python:3.9 
   deploy:
-    machine:
-      enabled: true
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - SHA256:d+6W3EBUQe9cC7cLwctwyIxwMu5O5v989ASL+k1FBKk
+      - checkout
       - run:
           name: Deploy Over SSH
           command: |

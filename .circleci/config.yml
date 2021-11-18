@@ -6,6 +6,7 @@ workflows:
   build-app-with-test:
     jobs:
       - build-and-test
+      - deploy
 jobs:
   build-and-test:
     docker:
@@ -14,6 +15,20 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pipenv
+      # - run:
+      #     name: Run tests
+      #     command: pipenv run pytest
+  deploy:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - d9:a3:6c:13:33:15:f5:85:32:3a:18:2f:cd:60:27:29
+      - checkout
+      - python/install-packages:
+          pkg-manager: pipenv
       - run:
-          name: Run tests
-          command: pipenv run pytest test_auth.py
+          name: Deploy Over SSH
+          command: |
+            ssh $SSH_USER@$SSH_HOST "<remote-deploy-command>"

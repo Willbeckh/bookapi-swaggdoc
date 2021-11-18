@@ -32,4 +32,4 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh-keyscan -H ssh.pythonanywhere.com >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST "<remote-deploy-command>"
+            ssh $SSH_USER@$SSH_HOST 

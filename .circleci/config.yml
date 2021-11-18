@@ -1,14 +1,30 @@
-version: 2
+version: 2.1
+orbs:
+  python: circleci/python@1.2
 
+workflows:
+  build-app-with-test:
+    jobs:
+      - build-and-test
+      - deploy
 jobs:
-  build:
+  build-and-test:
     docker:
-      - image: cimg/python:3.9 
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pipenv
+      # - run:
+      #     name: Run tests
+      #     command: pipenv run pytest
   deploy:
+    docker:
+      - image: cimg/python:3.9
     steps:
       - add_ssh_keys:
           fingerprints:
-            - SHA256:d+6W3EBUQe9cC7cLwctwyIxwMu5O5v989ASL+k1FBKk
+            - d9:a3:6c:13:33:15:f5:85:32:3a:18:2f:cd:60:27:29
       - checkout
       - python/install-packages:
           pkg-manager: pipenv
@@ -16,15 +32,3 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh $SSH_USER@$SSH_HOST "<remote-deploy-command>"
-
-workflows:
-  version: 2
-  build-and-deploy:
-    jobs:
-      - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: main

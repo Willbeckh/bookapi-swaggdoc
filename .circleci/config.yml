@@ -24,7 +24,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - SHA256:d+6W3EBUQe9cC7cLwctwyIxwMu5O5v989ASL+k1FBKk
+            - SHA256:Bivx51+6wDszMWTX3Gy/7O+zhYtIZsnH8kSe1agT5N4
       - checkout
       - python/install-packages:
           pkg-manager: pipenv

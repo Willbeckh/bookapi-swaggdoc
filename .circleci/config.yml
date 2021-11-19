@@ -9,16 +9,25 @@ workflows:
       - deploy
 jobs:
   build-and-test:
+    working_directory: ~/waweru/bookapi-swaggdoc
     docker:
       - image: cimg/python:3.9
     steps:
       - checkout
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "PipeFile.lock"}}
       - python/install-packages:
           pkg-manager: pipenv
+      - save_cache:
+          paths:
+            - "venv"
+          key:
+            deps1-{{ .Branch }}-{{ checksum "PipeFile.lock"}} 
       # - run:
       #     name: Run tests
       #     command: pipenv run pytest
   deploy:
+    
     docker:
       - image: cimg/python:3.9
     steps:
@@ -32,4 +41,4 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh-keyscan -H ssh.pythonanywhere.com >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST 
+            ssh $SSH_USER@$SSH_HOST "cd /bookapi-swaggdoc; ls";

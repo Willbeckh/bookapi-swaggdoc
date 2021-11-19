@@ -50,7 +50,7 @@ paths:
         200:
           description: User successfully registered.
         403:
-          description: Action forbiden
+          description: Action forbiden!
 
   /login:
     post:

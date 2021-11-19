@@ -70,7 +70,7 @@ paths:
         201:
           description: successfully logged in!
         401:
-          description: could not verify user details.
+          description: Could not verify user details.
 
   /bookapi/addbook:
     post:

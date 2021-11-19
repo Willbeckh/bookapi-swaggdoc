@@ -9,7 +9,7 @@ workflows:
       - deploy
 jobs:
   build-and-test:
-    working_directory: ~/waweru/bookapi-swaggdoc
+    working_directory: /bookapi-swaggdoc
     docker:
       - image: cimg/python:3.9
     steps:

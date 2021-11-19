@@ -9,6 +9,7 @@ workflows:
       - deploy
 jobs:
   build-and-test:
+    working_directory: ~/bookapi-swaggdoc
     docker:
       - image: cimg/python:3.9
     steps:
@@ -19,7 +20,7 @@ jobs:
       #     name: Run tests
       #     command: pipenv run pytest
   deploy:
-    working_directory: ~/bookapi-swaggdoc
+    
     docker:
       - image: cimg/python:3.9
     steps:
@@ -33,4 +34,4 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh-keyscan -H ssh.pythonanywhere.com >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST "git pull"
+            ssh $SSH_USER@$SSH_HOST 

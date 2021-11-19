@@ -41,4 +41,4 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh-keyscan -H ssh.pythonanywhere.com >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST "cd /bookapi-swaggdoc" "ls"
+            ssh $SSH_USER@$SSH_HOST "cd /bookapi-swaggdoc; ls";

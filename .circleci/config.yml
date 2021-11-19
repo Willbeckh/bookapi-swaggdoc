@@ -9,7 +9,7 @@ workflows:
       - deploy
 jobs:
   build-and-test:
-    working_directory: ~/waweru/bookapi-swaggdoc
+    working_directory: /bookapi-swaggdoc
     docker:
       - image: cimg/python:3.9
     steps:
@@ -41,4 +41,4 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh-keyscan -H ssh.pythonanywhere.com >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST "cd ../bookapi-swaggdoc; ls";
+            ssh $SSH_USER@$SSH_HOST "cd ../home/waweru/bookapi-swaggdoc; ls";

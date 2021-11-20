@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Library_manager
-  description: Library book management API.
+  description: Library book manager API.
   license:
     name: MIT
     url: "https://opensource.org/licenses/MIT"
@@ -17,18 +17,6 @@ servers:
           - https
         default: https
 
-  - url: '{protocol}://127.0.0.1:{port}'
-    description: base server
-    variables:
-      protocol:
-        enum:
-          - http
-          - https 
-        default: http
-      port:
-        enum:
-          - '5000'
-        default: '5000'
 
 
 

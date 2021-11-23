@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Library_manager
-  description: Library book manager API.
+  description: Library book management API.
   license:
     name: MIT
     url: "https://opensource.org/licenses/MIT"

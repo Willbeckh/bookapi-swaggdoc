@@ -16,13 +16,19 @@ jobs:
       - checkout
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "Pipefile"}}
-      - python/install-packages:
-          pkg-manager: pipenv
+      - run:
+          name: Install dependencies
+          command: |
+            pipenv --three
+            pipenv install
+      # - python/install-packages:
+      #     pkg-manager: pipenv
+
       - save_cache:
-          paths:
-            - "venv"
           key:
             deps1-{{ .Branch }}-{{ checksum "Pipefile"}} 
+          paths:
+            - "venv"
       # - run:
       #     name: Run tests
       #     command: pipenv run pytest

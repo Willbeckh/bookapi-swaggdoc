@@ -4,7 +4,7 @@ info:
   title: Library_manager
   description: Library book management API.
   license:
-    name: MIT
+    name: under MIT
     url: "https://opensource.org/licenses/MIT"
     
 servers: 

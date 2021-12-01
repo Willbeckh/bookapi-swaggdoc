@@ -4,7 +4,7 @@ import json
 import ast
 
 from werkzeug.wrappers.response import Response
-from library import app, db
+from library.main import app, db
 from config import app_config
 
 def getLoginToken(self):
@@ -16,7 +16,6 @@ def getLoginToken(self):
         self.assertEqual(user_login.status_code, 201)
         token = ast.literal_eval(user_login.data.decode())
         return token['token']
-
 
 class TestAuth(unittest.TestCase):
     """"Testcase for blueprint for authentication
